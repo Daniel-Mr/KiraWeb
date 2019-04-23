@@ -6,26 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace KiraHome.Controllers
 {
-    public class AreaController : Controller
+    public class ZonesController : Controller
     {
-        public IActionResult Sala()
+
+        public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Cocina()
+        public IActionResult Configuration()
         {
             return View();
         }
 
-        public IActionResult Habitacion()
+        public IActionResult Devices(int id)
         {
+            ViewData["ZoneId"] = id;
             return View();
         }
 
-        public IActionResult Banio()
-        {
-            return View();
-        }
     }
 }

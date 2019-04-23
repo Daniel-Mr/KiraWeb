@@ -22,6 +22,8 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Text;
 
 namespace KiraHome
 {
@@ -37,7 +39,7 @@ namespace KiraHome
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string host = "http://localhost:61991";
+            //string host = "http://localhost:61991";
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -49,82 +51,79 @@ namespace KiraHome
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddDefaultIdentity<IdentityUser>()
+            
+            services
+                .AddDefaultIdentity<IdentityUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             /********************************/
-            
 
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; //CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme; //CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
-                
-                // of course you also need to register that scheme, e.g. using
-                //options.AddScheme<MySchemeHandler>("scheme name", "scheme display name");
-
-            }).AddJwtBearer(o =>
-            {
-                // my API name as defined in Config.cs - new ApiResource... or in DB ApiResources table
-                o.Audience = Configuration["Settings:Authentication:ApiName"];
-                // URL of Auth server(API and Auth are separate projects/applications),
-                // so for local testing this is http://localhost:5000 if you followed ID4 tutorials
-                o.Authority = Configuration["Settings:Authentication:Authority"];
-                o.RequireHttpsMetadata = false;
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateAudience = true,
-                    // Scopes supported by API as defined in Config.cs - new ApiResource... or in DB ApiScopes table
-                    ValidAudiences = new List<string>() {
-                        "api.read",
-                        "api.write"
-                    },
-                    ValidateIssuer = true
-                };
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddCookie()
-            .AddOAuth("KiraNodeServer", options =>
-            {
-                options.ClientId = Configuration["KiraServer:ClientId"];
-                options.ClientSecret = Configuration["KiraServer:ClientSecret"];
-                options.CallbackPath = new PathString("/Home");
+           .AddCookie()
+           .AddOpenIdConnect("Auth0", options =>
+           {
+               // Set the authority to your Auth0 domain
+               options.Authority = $"https://{Configuration["Auth0:Domain"]}";
 
-                options.AuthorizationEndpoint = host + "/api/Users/Authenticate";
-                options.TokenEndpoint = host + "/api/Users/Authenticate";
-                options.UserInformationEndpoint = host + "/api/Users/";
+               // Configure the Auth0 Client ID and Client Secret
+               options.ClientId = Configuration["Auth0:ClientId"];
+               options.ClientSecret = Configuration["Auth0:ClientSecret"];
 
-                options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-                options.ClaimActions.MapJsonKey(ClaimTypes.Name, "firstname");
+               // Set response type to code
+               options.ResponseType = "code";
 
-                options.Events = new OAuthEvents
-                {
-                    OnCreatingTicket = async context =>
-                    {
-                        var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
-                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+               // Configure the scope
+               options.Scope.Clear();
+               options.Scope.Add("openid");
 
-                        var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
-                        response.EnsureSuccessStatusCode();
+               // Set the callback path, so Auth0 will call back to http://localhost:3000/callback
+               // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
+               options.CallbackPath = new PathString("/Home");
 
-                        var user = JObject.Parse(await response.Content.ReadAsStringAsync());
+               // Configure the Claims Issuer to be Auth0
+               options.ClaimsIssuer = "Auth0";
 
-                        context.RunClaimActions(user);
+               // Saves tokens to the AuthenticationProperties
+               options.SaveTokens = true;
 
-                    }
-                };
-            });
+               options.Events = new OpenIdConnectEvents
+               {
+                   // handle the logout redirection 
+                   OnRedirectToIdentityProviderForSignOut = (context) =>
+                  {
+                      var logoutUri = $"https://{Configuration["Auth0:Domain"]}/v2/logout?client_id={Configuration["Auth0:ClientId"]}";
 
+                      var postLogoutUri = context.Properties.RedirectUri;
+                      if (!string.IsNullOrEmpty(postLogoutUri))
+                      {
+                          if (postLogoutUri.StartsWith("/"))
+                          {
+                               // transform to absolute
+                               var request = context.Request;
+                              postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
+                          }
+                          logoutUri += $"&returnTo={ Uri.EscapeDataString(postLogoutUri)}";
+                      }
+
+                      context.Response.Redirect(logoutUri);
+                      context.HandleResponse();
+
+                      return Task.CompletedTask;
+                  }
+               };
+           });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+            // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -150,6 +149,22 @@ namespace KiraHome
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static bool IsAjaxRequest(HttpRequest request)
+        {
+            var query = request.Query;
+            if ((query != null) && (query["X-Requested-With"] == "XMLHttpRequest"))
+            {
+                return true;
+            }
+            IHeaderDictionary headers = request.Headers;
+            return ((headers != null) && (headers["X-Requested-With"] == "XMLHttpRequest"));
+        }
+
+        private static bool IsApiRequest(HttpRequest request)
+        {
+            return request.Path.StartsWithSegments(new PathString("/api"));
         }
     }
 }

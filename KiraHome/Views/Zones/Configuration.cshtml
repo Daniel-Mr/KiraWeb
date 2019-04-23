@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Configuration";
+    Layout = "~/Views/Shared/_LayoutKira.cshtml";
+
+}
+
+<h1>Zonas</h1>
+<hr />
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Icono</th>
+            <th style="width:50px;"></th>
+        </tr>
+    </thead>
+    <tbody id="tdata"></tbody>
+    <tfoot>
+        <tr>
+            <th><input type="text" class="form-control" name="txtName" id="txtName" /> </th>
+            <th><input type="text" class="form-control" name="imgIcon" id="imgIcon" /> </th>
+            <th><button id="btnAdd" type="button" class="btn btn-success">+</button> </th>
+        </tr>
+    </tfoot>
+</table>
+
+@section Scripts{
+
+<script>
+
+</script>
+<script src="~/js/zones_configuration.js"></script>
+
+}

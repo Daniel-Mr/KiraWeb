@@ -19,30 +19,33 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-
-    <header>
-        <div class="row">
-            <div class="col-lg-3">
-                <a href="/Area/Sala" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">Sala</a>
-            </div>
-            <div class="col-lg-3">
-                <a href="/Area/Cocina" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">Cocina</a>
-            </div>
-            <div class="col-lg-3">
-                <a href="/Area/Habitacion" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">habitacion</a>
-            </div>
-            <div class="col-lg-3">
-                <a href="/Area/Banio" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">Baño</a>
-            </div>
-        </div>
-    </header>
+    @*
+        <header>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <a href="/Area/Sala" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">Sala</a>
+                    </div>
+                    <div class="col-lg-3">
+                        <a href="/Area/Cocina" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">Cocina</a>
+                    </div>
+                    <div class="col-lg-3">
+                        <a href="/Area/Habitacion" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">habitacion</a>
+                    </div>
+                    <div class="col-lg-3">
+                        <a href="/Area/Banio" class="btn btn-kira btn-outline-primary btn-lg btn-block" id="cocina">Baño</a>
+                    </div>
+                </div>
+            </header>*@
     <div class="container">
-        <partial name="_CookieConsentPartial" />
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        <div class="row">
 
+            @*<partial name="_CookieConsentPartial" />*@
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+    </div>
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
@@ -61,9 +64,16 @@
                 integrity="sha256-E/V4cWE4qvAeO5MOhjtGtqDzPndRO1LBk8lJ/PR7CA4=">
         </script>
     </environment>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
 
+        var appSettings = {
+            serverUrl: '@KiraHome.AppSettings.serverUrll',
+            userId: '@User.Claims.FirstOrDefault(a => a.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value'
+        }
+
+    </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/websockets.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
-

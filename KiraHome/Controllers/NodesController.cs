@@ -2,25 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KiraHome.Controllers
 {
     public class NodesController : Controller
     {
+
+        [Authorize]
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Register()
+        public IActionResult Devices(string NodeId)
         {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Register(string NodeId)
-        {
+            ViewData["NodeId"] = NodeId;
             return View();
         }
 
