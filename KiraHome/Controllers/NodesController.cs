@@ -16,9 +16,9 @@ namespace KiraHome.Controllers
             return View();
         }
 
-        public IActionResult Devices(string NodeId)
+        public IActionResult Devices(string id)
         {
-            ViewData["NodeId"] = NodeId;
+            ViewData["NodeId"] = id;
             return View();
         }
 

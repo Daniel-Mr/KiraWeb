@@ -8,6 +8,7 @@ $(document).ready(function () {
         nodes = data;
         drawNodes();
     });
+
 });
 
 function drawNodes() {
@@ -18,14 +19,15 @@ function drawNodes() {
 
         var html = '';
 
-        html += ' <div class="col-lg-4">';
-        html += ' <div class="card">';
+        html += '<div class="col-lg-4">';
+        html += '<div class="card">';
         html += '    <div class="card-body">';
         html += '        <h5 class="card-title">' + nodes[i].name + '</h5>';
-        html += '        <p class="card-text">' + nodes[i].ipAddress + '</p>';
+        html += '        <p class="card-text">' + nodes[i].socketId + '</p>';
         html += '    </div>';
         html += '    <div class="card-footer">';
         html += '        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onclick = "setCurrent(\'' + nodes[i].id + '\')">Modificar</button>';
+        html += '        <a href="/Nodes/Devices/' + nodes[i].id + '" class="btn btn-success"  ">Dispositivos</button>';
         html += '    </div>';
         html += '</div>';
         html += '</div>';
@@ -48,7 +50,7 @@ function setCurrent(id) {
     }
 
     $('#txtName').val(current.name);
-    $('#txtIP').val(current.ipAddress);
+    $('#txtIP').val(current.socketId);
 
 }
 

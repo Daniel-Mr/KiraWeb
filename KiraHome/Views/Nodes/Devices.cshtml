@@ -5,12 +5,10 @@
 
 <div class="card text-center">
     <div class="card-header">
-        Featured
+        <h2><span id="nodeName"></span></h2>
     </div>
     <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+
 
 
         <div class="form-group">
@@ -21,16 +19,42 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Pin</th>
+                        <th>Zona</th>
+                        <th>Tipo</th>
+                        <th>Icono</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th><input type="text" class="form-control" name="txtNombre" id="txtNombre" /></th>
+                        <th><input type="text" class="form-control" name="txtPin" id="txtPin" /></th>
+                        <th><select class="form-control" name="txtZona" id="txtZona"> </select></th>
+                        <th>
+                            <select class="form-control" name="txtTipo" id="txtTipo">
+                                <option value="toggle">Toogle</option>
+                                <option value="dimmer"> Dimmer </option>
+                            </select>
+                        </th>
+                        <th><input type="text" class="form-control" name="txtIcono" id="txtIcono" /></th>
+                        <th><button type="button" class="btn btn-success" onclick="fnAddDevice()"> + </button> </th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
     </div>
     <div class="card-footer text-muted">
-       &nbsp;
+        &nbsp;
     </div>
 </div>
 
+@section Scripts{
+
+    <script>
+        var nodeId = '@ViewData["NodeId"]';
+    </script>
+    <script src="~/js/nodes_device.js"></script>
+
+}
