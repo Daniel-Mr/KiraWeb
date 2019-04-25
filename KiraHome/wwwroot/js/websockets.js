@@ -18,6 +18,27 @@ socket.addEventListener('message', function (eventData) {
         }
         case "OnToggle": {
             console.log(data);
+
+            switch (data.event) {
+
+                case "OnToggle": {
+
+                    if ($(data.d3).hasClass('active')) {
+                        if (data.d1 == 0) {
+                            $(data.d3).removeClass('active');
+                        }
+                    }
+                    else {
+                        if (data.d1 == 1) {
+                            $(data.d3).addClass('active');
+                        }
+                    }
+
+                    break;
+                }
+
+                default:
+            }
             break;
         }
 

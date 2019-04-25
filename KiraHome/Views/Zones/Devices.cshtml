@@ -20,7 +20,7 @@
 
                 var html = "";
 
-                html += '<div class="col-lg-4">';
+                html += '<div class="col-lg-4 col-xs-12">';
                 html += '<div class="card" style="width: 18rem;">';
                 html += '<img src="' + data[i].icon + '" class="card-img-top" alt="' + data[i].name + '">';
                 html += '<div class="card-body">';
@@ -32,8 +32,6 @@
                     html += '<button type="button" class="btn btn-lg btn-toggle active" data-toggle="button" aria-pressed="true" autocomplete="off" onclick="fnToggleDevice(\''+data[i].nodeId +'\','+data[i].pinNumber+',\'#device-'+data[i].id+'\')" id="device-'+data[i].id+'">';
                     html += '<div class="handle"></div>';
                     html += '</button>';
-                    //html += '<input type="button" class="btn btn-lg btn-toggle" onclick="fnToggleDevice(\''+data[i].nodeId +'\','+data[i].pinNumber+')" id="customSwitch1">';
-                    //html += '<label class="custom-control-label" for="customSwitch1"></label>';
                     html += '</div>';
 
                 }
@@ -49,6 +47,7 @@
 
         function fnToggleDevice(node, pin, el) {
 
+            console.log(node, pin, el);
             socket.send(JSON.stringify({ event: "OnToggle", d1: pin, d2: node, d3: el }));
         }
 
