@@ -3,6 +3,13 @@
 }
 
 
+    <div class="row">
+
+        <h1 class="text-center">BIENVENIDO A LA CASA INTELIGENTE KIRA HOME</h1>
+
+    </div>
+<hr />
+
 <div class="row" id="zones"></div>
 
 @section Scripts {
@@ -20,7 +27,7 @@
                 html += '<div class="col-lg-4">';
                 html += '<div class="card" style="width: 18rem;">';
                 html += '<a href="Zones/Devices/' + data[i].id + '">';
-                html += '<img src="' + data[i].icon + '" class="card-img-top" alt="' + data[i].name + '">';
+                html += '<img src="' + data[i].icon + '" class="card-img-top" alt="' + data[i].name + '" width="300" height="300">';
                 html += '</a>';
                 html += '<div class="card-body">';
                 html += '<a href="Zones/Devices/' + data[i].id + '">';

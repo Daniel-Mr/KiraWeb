@@ -1,5 +1,6 @@
 ﻿
 $(document).ready(function () {
+
     $.get('http://' + appSettings.serverUrl + '/api/nodes/GetByNode/' + nodeId, function (data) {
         $('#nodeName').html(data.name);
     });
@@ -13,15 +14,40 @@ $(document).ready(function () {
         }
 
     });
+
+    $.get('http://' + appSettings.serverUrl + '/api/devices/GetByNode/' + nodeId, function (data) {
+
+        for (var i = 0; i < data.length; i++) {
+
+            $('#tdata').append('<tr><td>' + data[i].name + '</td><td>' + data[i].pinNumber + '</td><td>' + data[i].zoneId + '</td><td>' + data[i].type + '</td><td>' + data[i].icon + '</td><td><button class="btn btn-danger"> - </button></td></tr>');
+
+        }
+
+    });
+
+    fnDrawList();
+
 });
 
+function fnDrawList() {
+    $.get('http://' + appSettings.serverUrl + '/api/devices/GetByNode/' + nodeId, function (data) {
+
+        $('#tdata').html('');
+
+        for (var i = 0; i < data.length; i++) {
+
+            $('#tdata').append('<tr><td>' + data[i].name + '</td><td>' + data[i].pinNumber + '</td><td>' + data[i].zoneId + '</td><td>' + data[i].type + '</td><td>' + data[i].icon + '</td><td><button class="btn btn-danger" onclick="fnDeleteDevice(' + data[i].id + ')"> - </button></td></tr>');
+
+        }
+
+    });
+}
 
 function fnAddDevice() {
 
 
     var name = $('#txtName').val();
     var icon = $('#imgIcon').val();
-
 
     var model = {
 
@@ -40,8 +66,25 @@ function fnAddDevice() {
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify(model)
-    }).done(function (msg) {
-        $('#tdata').append('<tr><td>' + name + '</td><td>' + icon + '</td><td><button class="btn btn-danger"> - </button></td></tr>');
+    }).always(function (msg) {
+
+        fnDrawList();
+        
+    });
+
+}
+
+function fnDeleteDevice(id) {
+
+    $.ajax({
+
+        method: "DELETE",
+        url: "http://" + appSettings.serverUrl + "/api/devices/" + id
+
+    }).always(function (msg) {
+
+        fnDrawList();
+
     });
 
 }
